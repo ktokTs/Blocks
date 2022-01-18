@@ -70,4 +70,14 @@ public static class Utils
         }
         return false;
     }
+
+    public static bool IsPieceInBoard(int[] Point)
+    {
+        int PointX = Point[0];
+        int PointY = Point[1];
+        if ((0 <= PointX && PointX < ConstList.BoardSize) &&
+        (0 <= PointY && PointY < ConstList.BoardSize))
+            return true;
+        return false;
+    }
 }

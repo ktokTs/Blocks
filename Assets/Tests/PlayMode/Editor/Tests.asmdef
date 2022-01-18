@@ -4,7 +4,8 @@
     "references": [
         "UnityEngine.TestRunner",
         "PIece",
-        "Utils"
+        "Utils",
+        "Board"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

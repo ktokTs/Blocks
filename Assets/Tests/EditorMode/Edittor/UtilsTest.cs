@@ -89,41 +89,13 @@ public class UtilsTest
         Assert.AreEqual(ExBool, Utils.ComparePiecePoint(Ex, Act));
     }
 
-   [Test]
-   public void UtilsTestComparePoint1()
-   {
-       Assert.AreEqual(true, 
-       Utils.ComparePiecePoint(new int[]{1, 3}, new int[]{1, 3}));
-   } 
-
-   [Test]
-   public void UtilsTestComparePoint2()
-   {
-       Assert.AreEqual(false, 
-       Utils.ComparePiecePoint(new int[]{1, 3}, new int[]{3, 1}));
-   } 
-
-
-   static object[] TestCase = 
-   new object[] {
-       new object[]
-       {
-           new int[]{1, 3},
-           new int[]{1, 3},
-           true
-       },
- 
-       new object[]
-       {
-           new int[]{1, 3},
-           new int[]{3, 1},
-           false
-       },
-   };
-   
-   [TestCaseSource(nameof(TestCase))]
-   public void UtilsTestComparePoint3(int[] Ex, int[] Act, bool ExBool)
-   {
-       Assert.AreEqual(ExBool, Utils.ComparePiecePoint(Ex, Act));
-   } 
+    [TestCase(true, new int[]{0, 0})]
+    [TestCase(false, new int[]{-1, 0})]
+    [TestCase(true, new int[]{13, 0})]
+    [TestCase(false, new int[]{14, 0})]
+    public void UtilsTestIsPieceInBoard(bool ExBool, int[] Input)
+    {
+        bool Res = Utils.IsPieceInBoard(Input);
+        Assert.AreEqual(ExBool, Res);
+    }
 }
