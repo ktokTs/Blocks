@@ -21,4 +21,9 @@ public class Piece : MonoBehaviour
     {
         this.transform.position = WaitPoint;
     }
+
+    public void Rotate()
+    {
+        
+    }
 }
