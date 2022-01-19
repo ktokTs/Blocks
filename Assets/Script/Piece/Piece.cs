@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class Piece : MonoBehaviour
 {
-    [SerializeField]
     public List<int[]> Design{get; set;}
-    string PrefabName = "";
+    public Vector3 WaitPoint{get; set;}
+    public bool IsSet;
     void Start()
     {
         Design = PieceDesign.ReturnDesign(this.gameObject);
@@ -15,5 +15,10 @@ public class Piece : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+    }
+
+    public void ReturnWaitPoint()
+    {
+        this.transform.position = WaitPoint;
     }
 }

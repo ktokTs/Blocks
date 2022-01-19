@@ -109,6 +109,95 @@ public class BoardPTest
         yield return null;
     }
 
+
+
+    object[] TestCaseSetPieceWithPivot = new object[]
+    {
+        new object[]
+        {
+            "SuccessTest",
+            true,
+            new List<int[]>
+            {
+                new int[]{0, 0},
+                new int[]{0, 1},
+            },
+            new int[]{2, 1},
+            new int[,]
+            {
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,1,1,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            },
+        },
+        new object[]
+        {
+            "FailTest",
+            false,
+            new List<int[]>
+            {
+                new int[]{0, 0},
+                new int[]{0, 1},
+            },
+            new int[]{2, 1},
+            new int[,]
+            {
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,1,1,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+              {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            },
+        },
+    };
+
+    [UnityTest]
+    public IEnumerator BoardPTestSetPieceWithPivot()
+    {
+        foreach (object[] TestCase in TestCaseSetPieceWithPivot)
+        {
+            Debug.Log((string)TestCase[0]);
+            bool ExBool = (bool)TestCase[1];
+            List<int[]> Input = (List<int[]>)TestCase[2];
+            int[] Pivot = (int[])TestCase[3];
+            int[,] ExBoard = (int[,])TestCase[4];
+
+            SceneManager.LoadScene("Game");
+            yield return null;
+            GameObject BoardObj = GameObject.Find ("Board");
+            Board BoardScript = BoardObj.GetComponent<Board>();
+
+            bool Res = BoardScript.SetPiece(Input, Pivot);
+            if (Res == false)
+            {
+                Assert.AreEqual(ExBool, Res);
+                continue;
+            }
+            Assert.AreEqual(ExBool, CompareBoard(ExBoard, BoardScript.BoardInfo));
+        }
+        yield return null;
+    }
+
     bool CompareBoard(int[,] Ex, int[,] Act)
     {
         int IndexY = 0;

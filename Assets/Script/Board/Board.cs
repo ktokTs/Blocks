@@ -15,6 +15,16 @@ public class Board : MonoBehaviour
     {
     }
 
+    public bool SetPiece(List<int[]> PieceDesign, int[] Pivot)
+    {
+        foreach (int[] Point in PieceDesign)
+        {
+            Point[0] += Pivot[0];
+            Point[1] += Pivot[1];
+        }
+        return SetPiece(PieceDesign);
+    }
+
     public bool SetPiece(List<int[]> PieceDesign)
     {
         foreach (int[] Point in PieceDesign)
