@@ -12,11 +12,11 @@ public class PieceController : MonoBehaviour
     Vector3 DotPoint;
     int PlayerNum;
     const int MaxPlayer = 2;
-    List<List<GameObject>> AllPieceList;
+    List<List<GameObject>> AllPieceList; //ピースオブジェクトのリスト
     int PieceCount = 0;
-    int MaxPiece = 21;
-    GameObject ControlPiece;
+    GameObject ControlPiece; //操作中のピース
 
+    //スタート時に動く関数
     void Start()
     {
         AllPieceList = new List<List<GameObject>>();
@@ -26,6 +26,9 @@ public class PieceController : MonoBehaviour
         CreatePieces(new Vector3(-0.36f, 0.1f, 0.15f), 1);
     }
 
+    //プレイヤー分のピースを生成する。初期状態では重力無し
+    //AllPieceListに生成したピースのオブジェクトを保管しておく
+    //PieceWaitPoint：ピースの生成位置。基本的にここでピースは待機する
     void CreatePieces(Vector3 PieceWaitPoint, int MaterialNum)
     {
         List<GameObject> PlayerPieceList = new List<GameObject>();
@@ -42,6 +45,7 @@ public class PieceController : MonoBehaviour
         AllPieceList.Add(PlayerPieceList);
     }
 
+    //ピース生成中、ピース間の距離分移動
     Vector3 StepPieceWaitPoint(Vector3 WaitPoint)
     {
         WaitPoint += new Vector3(0f, 0f, -0.06f);
@@ -52,8 +56,9 @@ public class PieceController : MonoBehaviour
         }
         return WaitPoint;
     }
-    
 
+    //F,Gでピース変更。スペースでピース設置
+    //WASDでピース移動
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.F))
@@ -62,7 +67,7 @@ public class PieceController : MonoBehaviour
             ChangeControlPiece(-1);
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            StepPiece();
+            SetPiece();
         }
         if (Input.GetKeyDown(KeyCode.W))
             MoveSpawnPoint(new Vector3(0f, 0f, 0.01f));
@@ -74,7 +79,9 @@ public class PieceController : MonoBehaviour
             MoveSpawnPoint(new Vector3(-0.01f, 0f, 0f));
     }
 
-    void StepPiece()
+    //ピースを置く。重力はオンにする。
+    //置いたピースはAllPieceListから削除する
+    void SetPiece()
     {
         if (ControlPiece == null)
             return;
@@ -83,12 +90,14 @@ public class PieceController : MonoBehaviour
         AllPieceList[PlayerNum].Remove(ControlPiece);
         IncreasePlayerNum();
         ControlPiece = null;
-        ChangeControlPiece(1);
+        PieceCount = 1;
+        ChangeControlPiece(-1);
     }
 
+    //操作するピースを変更する。引数で次のピースか前のピースか決めている。
     void ChangeControlPiece(int Dir)
     {
-        MaxPiece = (AllPieceList[PlayerNum].Count);
+        int MaxPiece = (AllPieceList[PlayerNum].Count);
         if (MaxPiece == 0)
             return;
         if (ControlPiece != null)
