@@ -23,8 +23,8 @@ public static class PieceDesign
                 continue;
             Vector3 Pos = (ChildObj.transform.position - Pivot) * 100;
             int[] ChildPoint = new int[2];
-            ChildPoint[1] = (int)(Mathf.Round(Pos.z));
-            ChildPoint[0] = (int)(Mathf.Round(Pos.x));
+            ChildPoint[0] = -(int)(Mathf.Round(Pos.z));
+            ChildPoint[1] = (int)(Mathf.Round(Pos.x));
             res.Add(ChildPoint);
         }
         return res;

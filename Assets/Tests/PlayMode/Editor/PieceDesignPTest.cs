@@ -12,25 +12,25 @@ public class PieceDesignPTest
         {
             true,
             "P3-2",
-            new List<int[]>{new int[]{0, 0}, new int[]{1, 0}, new int[]{2, 0}},
+            new List<int[]>{new int[]{0, 0}, new int[]{0, 1}, new int[]{0, 2}},
         },
         new object[]
         {
             false,
             "P3-2",
-            new List<int[]>{new int[]{0, 0}, new int[]{1, 0}, new int[]{3, 0}},
+            new List<int[]>{new int[]{0, 0}, new int[]{0, 1}, new int[]{0, 3}},
         },
         new object[]
         {
             true,
             "P4-3",
-            new List<int[]>{new int[]{0, 0}, new int[]{1, 0}, new int[]{1, 1}, new int[]{0, 1}},
+            new List<int[]>{new int[]{0, 0}, new int[]{-1, 0}, new int[]{-1, 1}, new int[]{0, 1}},
         },
         new object[]
         {
             true,
             "P5-6",
-            new List<int[]>{new int[]{0, 0}, new int[]{1, 0}, new int[]{1, 1}, new int[]{1, -1}, new int[]{2, 1}},
+            new List<int[]>{new int[]{0, 0}, new int[]{0, 1}, new int[]{-1, 1}, new int[]{1, 1}, new int[]{-1, 2}},
         },
     };
 

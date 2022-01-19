@@ -5,7 +5,8 @@
         "UnityEngine.TestRunner",
         "PIece",
         "Utils",
-        "Board"
+        "Board",
+        "PieceController"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

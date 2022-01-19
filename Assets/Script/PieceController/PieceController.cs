@@ -13,17 +13,22 @@ public class PieceController : MonoBehaviour
     int PlayerNum;
     const int MaxPlayer = 2;
     List<List<GameObject>> AllPieceList; //ピースオブジェクトのリスト
-    int PieceCount = 0;
+    int PieceCount = 1;
     GameObject ControlPiece; //操作中のピース
+    Board BoardScript;
+    int[] PiecePivot; //現在操作中のピースの原点の位置
 
     //スタート時に動く関数
     void Start()
     {
+        BoardScript = GameObject.Find("Board").GetComponent<Board>();
+        PiecePivot = new int[]{0, 0};
         AllPieceList = new List<List<GameObject>>();
         SpawnPoint = new Vector3(-0.065f, 0.05f, 0.065f);
         DotPoint = this.transform.position;
         CreatePieces(new Vector3(0.12f, 0.1f, 0.15f), 0);
         CreatePieces(new Vector3(-0.36f, 0.1f, 0.15f), 1);
+        ChangeControlPiece(-1);
     }
 
     //プレイヤー分のピースを生成する。初期状態では重力無し
@@ -81,20 +86,29 @@ public class PieceController : MonoBehaviour
 
     //ピースを置く。重力はオンにする。
     //置いたピースはAllPieceListから削除する
-    void SetPiece()
+    //PieceCountはリセット。その後ChangeControlPieceで一番最初のピースを持たせる
+    public bool SetPiece()
     {
+        Piece ControlPieceScript;
         if (ControlPiece == null)
-            return;
+            return false;
+        ControlPieceScript = ControlPiece.GetComponent<Piece>();
+        bool IsSpace = BoardScript.SetPiece(ControlPieceScript.Design, PiecePivot, PlayerNum);
+        if (!IsSpace)
+            return false;
+
         ControlPiece.GetComponent<Rigidbody>().useGravity  = true;
-        ControlPiece.GetComponent<Piece>().IsSet = true;
+        ControlPieceScript.IsSet = true;
         AllPieceList[PlayerNum].Remove(ControlPiece);
         IncreasePlayerNum();
         ControlPiece = null;
         PieceCount = 1;
         ChangeControlPiece(-1);
+        return true;
     }
 
     //操作するピースを変更する。引数で次のピースか前のピースか決めている。
+    //操作から離れたピースは最初の生成位置に戻る
     void ChangeControlPiece(int Dir)
     {
         int MaxPiece = (AllPieceList[PlayerNum].Count);
@@ -118,12 +132,21 @@ public class PieceController : MonoBehaviour
             PlayerNum = 0;
     }
 
-    void MoveSpawnPoint(Vector3 diff)
+    public void MoveSpawnPoint(Vector3 diff)
     {
         if (ControlPiece == null)
             return ;
+
+        int PointY = PiecePivot[0] - (int)(Mathf.Round(diff.z * 100));
+        int PointX = PiecePivot[1] + (int)(Mathf.Round(diff.x * 100));
+        if (PointX < 0 || ConstList.BoardSize <= PointX || 
+        PointY < 0 || ConstList.BoardSize <= PointY)
+            return;
         this.transform.position += diff;
         SpawnPoint += diff;
+        diff *= 100;
+        PiecePivot[0] -= (int)(Mathf.Round(diff.z));
+        PiecePivot[1] += (int)(Mathf.Round(diff.x));
         ControlPiece.transform.position = this.SpawnPoint;
     }
 

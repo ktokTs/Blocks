@@ -98,9 +98,10 @@ public class BoardPTest
             GameObject BoardObj = GameObject.Find ("Board");
             Board BoardScript = BoardObj.GetComponent<Board>();
 
-            bool Res = BoardScript.SetPiece(Input);
+            bool Res = BoardScript.SetPiece(Input, 1);
             if (Res == false)
             {
+                Debug.Log("Not Compare Array");
                 Assert.AreEqual(ExBool, Res);
                 continue;
             }
@@ -108,8 +109,6 @@ public class BoardPTest
         }
         yield return null;
     }
-
-
 
     object[] TestCaseSetPieceWithPivot = new object[]
     {
@@ -187,13 +186,72 @@ public class BoardPTest
             GameObject BoardObj = GameObject.Find ("Board");
             Board BoardScript = BoardObj.GetComponent<Board>();
 
-            bool Res = BoardScript.SetPiece(Input, Pivot);
+            bool Res = BoardScript.SetPiece(Input, Pivot, 1);
             if (Res == false)
             {
+                Debug.Log("Not Compare Array");
                 Assert.AreEqual(ExBool, Res);
                 continue;
             }
             Assert.AreEqual(ExBool, CompareBoard(ExBoard, BoardScript.BoardInfo));
+        }
+        yield return null;
+    }
+
+
+    object[] TestCaseDuplicate = new object[]
+    {
+        new object[]
+        {
+            "SuccessTest",
+            true,
+            new List<int[]>
+            {
+                new int[]{0, 0},
+                new int[]{0, 1},
+            },
+            new List<int[]>
+            {
+                new int[]{1, 0},
+                new int[]{1, 1},
+            },
+        },
+        new object[]
+        {
+            "FailTest",
+            false,
+            new List<int[]>
+            {
+                new int[]{0, 0},
+                new int[]{0, 1},
+            },
+            new List<int[]>
+            {
+                new int[]{0, 0},
+                new int[]{1, 1},
+            },
+        },
+    };
+
+    [UnityTest]
+    public IEnumerator BoardPTestDuplicate()
+    {
+        foreach (object[] TestCase in TestCaseDuplicate)
+        {
+            Debug.Log((string)TestCase[0]);
+            bool ExBool = (bool)TestCase[1];
+            List<int[]> Input1 = (List<int[]>)TestCase[2];
+            List<int[]> Input2 = (List<int[]>)TestCase[3];
+
+            SceneManager.LoadScene("Game");
+            yield return null;
+            GameObject BoardObj = GameObject.Find ("Board");
+            Board BoardScript = BoardObj.GetComponent<Board>();
+
+            bool Res = BoardScript.SetPiece(Input1, 1);
+            Assert.AreEqual(true, Res);
+            Res = BoardScript.SetPiece(Input2, 1);
+            Assert.AreEqual(ExBool, Res);
         }
         yield return null;
     }
