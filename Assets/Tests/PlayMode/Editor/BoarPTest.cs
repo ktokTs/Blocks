@@ -15,6 +15,7 @@ public class BoardPTest
             true,
             new List<int[]>
             {
+                new int[]{0, 0},
                 new int[]{2, 0},
                 new int[]{0, 1},
                 new int[]{13, 11},
@@ -23,7 +24,7 @@ public class BoardPTest
             },
             new int[,]
             {
-              {0,1,0,0,0,0,0,0,0,0,0,0,0,0},
+              {1,1,0,0,0,0,0,0,0,0,0,0,0,0},
               {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
               {1,0,0,0,0,0,0,0,0,0,1,0,0,0},
               {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -45,6 +46,7 @@ public class BoardPTest
             false,
             new List<int[]>
             {
+                new int[]{0, 0},
                 new int[]{2, 1},
                 new int[]{0, 1},
                 new int[]{13, 11},
@@ -53,7 +55,7 @@ public class BoardPTest
             },
             new int[,]
             {
-              {0,1,0,0,0,0,0,0,0,0,0,0,0,0},
+              {1,1,0,0,0,0,0,0,0,0,0,0,0,0},
               {0,0,0,0,0,0,0,0,0,0,1,0,0,0},//
               {1,0,0,0,0,0,0,0,0,0,0,0,0,0},
               {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -75,7 +77,7 @@ public class BoardPTest
             false,
             new List<int[]>
             {
-                new int[]{2, -1},
+                new int[]{0, -1},
             },
             new int[,]
             {
@@ -98,7 +100,7 @@ public class BoardPTest
             GameObject BoardObj = GameObject.Find ("Board");
             Board BoardScript = BoardObj.GetComponent<Board>();
 
-            bool Res = BoardScript.SetPiece(Input, 1);
+            bool Res = BoardScript.SetPiece(Input, 0);
             if (Res == false)
             {
                 Debug.Log("Not Compare Array");
@@ -119,14 +121,14 @@ public class BoardPTest
             new List<int[]>
             {
                 new int[]{0, 0},
-                new int[]{0, 1},
+                new int[]{0, -1},
             },
-            new int[]{2, 1},
+            new int[]{0, 1},
             new int[,]
             {
+              {1,1,0,0,0,0,0,0,0,0,0,0,0,0},
               {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
               {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-              {0,1,1,0,0,0,0,0,0,0,0,0,0,0},
               {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
               {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
               {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -147,13 +149,13 @@ public class BoardPTest
             new List<int[]>
             {
                 new int[]{0, 0},
-                new int[]{0, 1},
+                new int[]{0, -1},
             },
-            new int[]{2, 1},
+            new int[]{0, 2},
             new int[,]
             {
+              {1,1,0,0,0,0,0,0,0,0,0,0,0,0},
               {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-              {0,0,1,1,0,0,0,0,0,0,0,0,0,0},
               {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
               {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
               {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -186,7 +188,7 @@ public class BoardPTest
             GameObject BoardObj = GameObject.Find ("Board");
             Board BoardScript = BoardObj.GetComponent<Board>();
 
-            bool Res = BoardScript.SetPiece(Input, Pivot, 1);
+            bool Res = BoardScript.SetPiece(Input, Pivot, 0);
             if (Res == false)
             {
                 Debug.Log("Not Compare Array");
@@ -212,8 +214,7 @@ public class BoardPTest
             },
             new List<int[]>
             {
-                new int[]{1, 0},
-                new int[]{1, 1},
+                new int[]{1, 2},
             },
         },
         new object[]
@@ -228,7 +229,6 @@ public class BoardPTest
             new List<int[]>
             {
                 new int[]{0, 0},
-                new int[]{1, 1},
             },
         },
     };
@@ -248,10 +248,63 @@ public class BoardPTest
             GameObject BoardObj = GameObject.Find ("Board");
             Board BoardScript = BoardObj.GetComponent<Board>();
 
-            bool Res = BoardScript.SetPiece(Input1, 1);
+            bool Res = BoardScript.SetPiece(Input1, 0);
             Assert.AreEqual(true, Res);
-            Res = BoardScript.SetPiece(Input2, 1);
+            Res = BoardScript.CheckBaseRule(Input2[0], 1);
             Assert.AreEqual(ExBool, Res);
+        }
+        yield return null;
+    }
+
+    object[] TestCaseIsFollowSetRule = new object[]
+    {
+        new object[]
+        {
+            "SuccessTest",
+            new List<bool>
+            {
+                true,
+                true,
+            },
+            new List<List<int[]>>
+            {
+                new List<int[]>
+                {
+                    new int[]{0, 0},
+                    new int[]{0, 1},
+                },
+                new List<int[]>
+                {
+                    new int[]{1, 2},
+                    new int[]{1, 3},
+                },
+            },
+        },
+    };
+
+    [UnityTest]
+    public IEnumerator BoardPTestIsFollowSetRule()
+    {
+        foreach (object[] TestCase in TestCaseIsFollowSetRule)
+        {
+            Debug.Log((string)TestCase[0]);
+            List<bool> ExBool = (List<bool>)TestCase[1];
+            List<List<int[]>> Inputs = (List<List<int[]>>)TestCase[2];
+
+            SceneManager.LoadScene("Game");
+            yield return null;
+            GameObject BoardObj = GameObject.Find ("Board");
+            Board BoardScript = BoardObj.GetComponent<Board>();
+
+            int index = 0;
+            foreach (List<int[]> Input in Inputs)
+            {
+                Debug.Log("Loop " + index);
+                bool Res = BoardScript.SetPiece(Input, 0);
+                Assert.AreEqual(ExBool[index], Res);
+                index++;
+                yield return null;
+            }
         }
         yield return null;
     }

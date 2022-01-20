@@ -5,7 +5,7 @@ using UnityEngine;
 public class Board : MonoBehaviour
 {
     public int[,] BoardInfo{get; set;} //ボードのピースの位置を管理する2重配列
-    List<int> SetPlayer = new List<int>();
+    List<int> SetPlayer = new List<int>(); //ピースを置いたことのあるプレイヤーリスト
 
     void Start()
     {
@@ -31,6 +31,7 @@ public class Board : MonoBehaviour
     }
 
     //ピースを置く。置けない場合はfalseを返し、置けた場合はBoardInfoに書き込んで、trueを返す。
+    //初めて置く場合は頂点が接している条件を満たせないので、別関数での確認
     public bool SetPiece(List<int[]> PieceDesign, int PlayerNum)
     {
         foreach (int[] Point in PieceDesign)
@@ -49,7 +50,6 @@ public class Board : MonoBehaviour
             {
                 IsPossible = CheckApplicationRule(Point, PlayerNum);
             }
-            Debug.Log(Point[0] + " " + Point[1] + " " + IsPossible + " " + !SetPlayer.Contains(PlayerNum + 1));
             if (IsPossible)
                 break;
         }
@@ -64,7 +64,8 @@ public class Board : MonoBehaviour
         return true;
     }
 
-
+    //スタート時はプレイヤーごとのスタート地点が違うので、CheckStartPointsで定義
+    //そこに入っているかを確認
     bool CheckStartRule(int[] Point, int PlayerNum)
     {
         int[][] CheckStartPoints = new int[][]{new int[]{0, 0}, new int[]{13, 13}};
@@ -73,6 +74,7 @@ public class Board : MonoBehaviour
         return false;
     }
 
+    //頂点同士が接しているか
     bool CheckApplicationRule(int[] Point, int PlayerNum)
     {
         int[][] CheckDiagonalPoints = new int[][]{new int[]{1, 1}, new int[]{-1, 1}, new int[]{1, -1}, new int[]{-1, -1}};
@@ -88,12 +90,22 @@ public class Board : MonoBehaviour
         }
         return IsPossible;
     }
-    bool CheckBaseRule(int[] Point, int PlayerNum)
+
+    //基本的なルールに則しているか確認
+    //重なっていない、ボードからはみ出ていない、自分のピースの辺が接していない
+    public bool CheckBaseRule(int[] Point, int PlayerNum)
     {
         if (!Utils.IsPieceInBoard(Point))
             return false;
         if (BoardInfo[Point[0], Point[1]] != 0)
             return false;
+        if (!CheckAdjacentRule(Point, PlayerNum))
+            return false;
+        return true;
+    }
+
+    public bool CheckAdjacentRule(int[] Point, int PlayerNum)
+    {
         int[][] CheckAdjacentPoints = new int[][]{new int[]{1, 0}, new int[]{-1, 0}, new int[]{0, 1}, new int[]{0, -1}};
         foreach(int[] CheckPoint in CheckAdjacentPoints)
         {

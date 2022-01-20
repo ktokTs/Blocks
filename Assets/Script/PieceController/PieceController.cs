@@ -74,6 +74,12 @@ public class PieceController : MonoBehaviour
         {
             SetPiece();
         }
+        if (Input.GetKeyDown(KeyCode.R))
+            PieceReverse();
+        if (Input.GetKeyDown(KeyCode.E))
+            PieceRotate(1);
+        if (Input.GetKeyDown(KeyCode.Q))
+            PieceRotate(-1);
         if (Input.GetKeyDown(KeyCode.W))
             MoveSpawnPoint(new Vector3(0f, 0f, 0.01f));
         if (Input.GetKeyDown(KeyCode.S))
@@ -82,6 +88,8 @@ public class PieceController : MonoBehaviour
             MoveSpawnPoint(new Vector3(0.01f, 0f, 0f));
         if (Input.GetKeyDown(KeyCode.A))
             MoveSpawnPoint(new Vector3(-0.01f, 0f, 0f));
+        if (Input.GetKeyDown(KeyCode.Z))
+            ShowPieceInfo();
     }
 
     //ピースを置く。重力はオンにする。
@@ -132,6 +140,16 @@ public class PieceController : MonoBehaviour
             PlayerNum = 0;
     }
 
+    void PieceReverse()
+    {
+        ControlPiece.GetComponent<Piece>().Reverse();
+    }
+
+    public void PieceRotate(int Dir)
+    {
+        ControlPiece.GetComponent<Piece>().Rotate(Dir);
+    }
+
     public void MoveSpawnPoint(Vector3 diff)
     {
         if (ControlPiece == null)
@@ -148,6 +166,11 @@ public class PieceController : MonoBehaviour
         PiecePivot[0] -= (int)(Mathf.Round(diff.z));
         PiecePivot[1] += (int)(Mathf.Round(diff.x));
         ControlPiece.transform.position = this.SpawnPoint;
+    }
+
+    void ShowPieceInfo()
+    {
+        ControlPiece.GetComponent<Piece>().DebugLogPieceList();
     }
 
     void SetMaterialToChild(GameObject Obj, Material Material)
