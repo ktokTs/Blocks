@@ -13,7 +13,7 @@ public class Piece : MonoBehaviour
     void Start()
     {
         Design = PieceDesign.ReturnDesign(this.gameObject);
-        StartDesign = Design;
+        StartDesign = CopyPieceDesign(Design);
     }
 
     void Update()
@@ -23,18 +23,18 @@ public class Piece : MonoBehaviour
     //ボードで設定されているピース待機場所に戻る
     public void ReturnWaitPoint()
     {
+        DebugLogPieceList(StartDesign);
+        Design = CopyPieceDesign(StartDesign);
+        RotateAngle = 0;
+        ReverseAngle = 0;
+        transform.rotation = Quaternion.AngleAxis(0, new Vector3(0, 1, 0));
         this.transform.position = WaitPoint;
     }
 
     //ピースの回転。反転中は回転方向を逆にしています。回転方向は引数の±で判断
     public void Rotate(int Dir)
     {
-        foreach (int[] Piece in Design)
-        {
-            int[] Tmp = new int[]{Piece[0], Piece[1]};
-            Piece[1] = -1 * Dir *Tmp[0];
-            Piece[0] = 1 * Dir *Tmp[1];
-        }
+        PieceDesign.Rotate(Design, Dir);
         if (ReverseAngle != 0)
             Dir *= -1;
         RotateAngle += 90 * Dir;
@@ -48,10 +48,7 @@ public class Piece : MonoBehaviour
     //ピースの反転
     public void Reverse()
     {
-        foreach (int[] Piece in Design)
-        {
-            Piece[0] = -Piece[0];
-        }
+        PieceDesign.Reverse(Design);
         ReverseAngle += 180;
         Quaternion TmpQ;
         TmpQ = Quaternion.AngleAxis(RotateAngle, new Vector3(0, 1, 0));
@@ -60,8 +57,33 @@ public class Piece : MonoBehaviour
             ReverseAngle = 0;
     }
 
+    //Designの配列のディープコピーを作成
+    public List<int[]> CopyPieceDesign(List<int[]> Design)
+    {
+        List<int[]> Res = new List<int[]>();
+        foreach (int[] Piece in Design)
+        {
+            int Len = Piece.Length;
+            int[] TmpPoint = new int[Len];
+            for (int Index = 0; Index < Len; Index++)
+            {
+                TmpPoint[Index] = Piece[Index];
+            }
+            Res.Add(TmpPoint);
+        }
+        return Res;
+    }
+
     //デバッグ用
     public void DebugLogPieceList()
+    {
+        Debug.Log("====");
+        foreach (int[] A in Design)
+        {
+            Debug.Log(A[0] + " " + A[1]);
+        }
+    }
+    public void DebugLogPieceList(List<int[]> Design)
     {
         Debug.Log("====");
         foreach (int[] A in Design)

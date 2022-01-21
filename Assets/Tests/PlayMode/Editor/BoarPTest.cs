@@ -100,13 +100,15 @@ public class BoardPTest
             GameObject BoardObj = GameObject.Find ("Board");
             Board BoardScript = BoardObj.GetComponent<Board>();
 
-            bool Res = BoardScript.SetPiece(Input, 0);
+            bool Res = BoardScript.IsPossibleSetPiece(Input, 0);
             if (Res == false)
             {
                 Debug.Log("Not Compare Array");
                 Assert.AreEqual(ExBool, Res);
                 continue;
             }
+            else
+                BoardScript.SetPiece(Input, 0);
             Assert.AreEqual(ExBool, CompareBoard(ExBoard, BoardScript.BoardInfo));
         }
         yield return null;
@@ -188,13 +190,15 @@ public class BoardPTest
             GameObject BoardObj = GameObject.Find ("Board");
             Board BoardScript = BoardObj.GetComponent<Board>();
 
-            bool Res = BoardScript.SetPiece(Input, Pivot, 0);
+            bool Res = BoardScript.IsPossibleSetPiece(Input, Pivot, 0);
             if (Res == false)
             {
                 Debug.Log("Not Compare Array");
                 Assert.AreEqual(ExBool, Res);
                 continue;
             }
+            else
+                BoardScript.SetPiece(Input, Pivot, 0);
             Assert.AreEqual(ExBool, CompareBoard(ExBoard, BoardScript.BoardInfo));
         }
         yield return null;
@@ -248,8 +252,9 @@ public class BoardPTest
             GameObject BoardObj = GameObject.Find ("Board");
             Board BoardScript = BoardObj.GetComponent<Board>();
 
-            bool Res = BoardScript.SetPiece(Input1, 0);
+            bool Res = BoardScript.IsPossibleSetPiece(Input1, 0);
             Assert.AreEqual(true, Res);
+            BoardScript.SetPiece(Input1, 0);
             Res = BoardScript.CheckBaseRule(Input2[0], 1);
             Assert.AreEqual(ExBool, Res);
         }
@@ -300,8 +305,10 @@ public class BoardPTest
             foreach (List<int[]> Input in Inputs)
             {
                 Debug.Log("Loop " + index);
-                bool Res = BoardScript.SetPiece(Input, 0);
+                bool Res = BoardScript.IsPossibleSetPiece(Input, 0);
                 Assert.AreEqual(ExBool[index], Res);
+                if (Res)
+                    BoardScript.SetPiece(Input, 0);
                 index++;
                 yield return null;
             }

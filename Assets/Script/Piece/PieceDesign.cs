@@ -29,4 +29,25 @@ public static class PieceDesign
         }
         return res;
     }
+
+    public static List<int[]> Reverse(List<int[]> Design)
+    {
+        foreach (int[] Piece in Design)
+        {
+            Piece[0] = -Piece[0];
+        }
+        return Design;
+    }
+
+    public static List<int[]> Rotate(List<int[]> Design, int Dir)
+    {
+        foreach (int[] Piece in Design)
+        {
+            int[] Tmp = new int[]{Piece[0], Piece[1]};
+            Piece[1] = -1 * Dir *Tmp[0];
+            Piece[0] = 1 * Dir *Tmp[1];
+        }
+        return Design;
+    }
+
 }

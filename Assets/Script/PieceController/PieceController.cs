@@ -90,6 +90,15 @@ public class PieceController : MonoBehaviour
             MoveSpawnPoint(new Vector3(-0.01f, 0f, 0f));
         if (Input.GetKeyDown(KeyCode.Z))
             ShowPieceInfo();
+        if (Input.GetKeyDown(KeyCode.X))
+            IsPossibleAnySetPiece();
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            object[] Instruction = IsPossibleAnySetPiece();
+            if (Instruction == null)
+                return;
+            ExecInstruction(Instruction);
+        }
     }
 
     //ピースを置く。重力はオンにする。
@@ -101,9 +110,10 @@ public class PieceController : MonoBehaviour
         if (ControlPiece == null)
             return false;
         ControlPieceScript = ControlPiece.GetComponent<Piece>();
-        bool IsSpace = BoardScript.SetPiece(ControlPieceScript.Design, PiecePivot, PlayerNum);
+        bool IsSpace = BoardScript.IsPossibleSetPiece(ControlPieceScript.Design, PiecePivot, PlayerNum);
         if (!IsSpace)
             return false;
+        BoardScript.SetPiece(ControlPieceScript.Design, PiecePivot, PlayerNum);
 
         ControlPiece.GetComponent<Rigidbody>().useGravity  = true;
         ControlPieceScript.IsSet = true;
@@ -117,7 +127,7 @@ public class PieceController : MonoBehaviour
 
     //操作するピースを変更する。引数で次のピースか前のピースか決めている。
     //操作から離れたピースは最初の生成位置に戻る
-    void ChangeControlPiece(int Dir)
+    public void ChangeControlPiece(int Dir)
     {
         int MaxPiece = (AllPieceList[PlayerNum].Count);
         if (MaxPiece == 0)
@@ -133,14 +143,14 @@ public class PieceController : MonoBehaviour
         ControlPiece.transform.position = this.SpawnPoint;
     }
 
-    void IncreasePlayerNum()
+    public void IncreasePlayerNum()
     {
         PlayerNum += 1;
         if (PlayerNum == MaxPlayer)
             PlayerNum = 0;
     }
 
-    void PieceReverse()
+    public void PieceReverse()
     {
         ControlPiece.GetComponent<Piece>().Reverse();
     }
@@ -168,16 +178,96 @@ public class PieceController : MonoBehaviour
         ControlPiece.transform.position = this.SpawnPoint;
     }
 
-    void ShowPieceInfo()
+    public void ShowPieceInfo()
     {
         ControlPiece.GetComponent<Piece>().DebugLogPieceList();
     }
 
-    void SetMaterialToChild(GameObject Obj, Material Material)
+    public void SetMaterialToChild(GameObject Obj, Material Material)
     {
         foreach (Transform Child in Obj.transform)
         {
             Child.GetComponent<Renderer>().material = Material;
         }
+    }
+
+    //置けるピースがあるか検索を行う。
+    //ピースの種類(先頭から何番目のピースか)
+    // 反転
+    //  回転
+    //   Y軸の位置
+    //    X軸の位置
+    // の順でループを行っている。置ける場合にはループの情報を引き渡す
+    public object[] IsPossibleAnySetPiece()
+    {
+        List<GameObject> PieceList = AllPieceList[PlayerNum];
+
+        int PieceIndex = 0;
+        foreach (GameObject Piece in PieceList)
+        {
+            Piece ControlPieceScript = Piece.GetComponent<Piece>();
+            List<int[]> CurrentPieceDesign = ControlPieceScript.CopyPieceDesign(ControlPieceScript.Design);
+            for (int ReverseCount = 0; ReverseCount < 2; ReverseCount++)
+            {
+                for (int RotateCount = 0; RotateCount < 4; RotateCount++)
+                {
+                    for (int IndexY = 0; IndexY < ConstList.BoardSize; IndexY++)
+                    {
+                        for (int IndexX = 0; IndexX < ConstList.BoardSize; IndexX++)
+                        {
+                            bool IsSpace = BoardScript.IsPossibleSetPiece(CurrentPieceDesign, new int[]{IndexY, IndexX}, PlayerNum);
+                            if (IsSpace)
+                            {
+                                return new object[]
+                                {
+                                    PieceIndex,
+                                    ReverseCount,
+                                    RotateCount,
+                                    IndexY,
+                                    IndexX,
+                                };
+                            }
+                        }
+                    }
+                    PieceDesign.Rotate(CurrentPieceDesign, 1);
+                }
+                PieceDesign.Reverse(CurrentPieceDesign);
+            }
+            PieceIndex++;
+        }
+        return null;
+    }
+
+    //一旦原点まで基点を戻し、Instructionの指示に沿って回転や移動を行い、SetPieceを行う。
+    void ExecInstruction(object[] Instruction)
+    {
+        int PieceIndex = (int)Instruction[0];
+        int ReverseCount = (int)Instruction[1];
+        int RotateCount = (int)Instruction[2];
+        int IndexY = (int)Instruction[3];
+        int IndexX = (int)Instruction[4];
+
+        /* Debug.Log
+        (
+            PieceIndex + "\n" + 
+            "ReverseCount = " + ReverseCount + "\n" + 
+            "RotateCount = " + RotateCount + "\n" + 
+            IndexY + ", " + IndexX
+        ); */
+        for (int Count = 0; Count < ConstList.BoardSize; Count++)
+            MoveSpawnPoint(new Vector3(0f, 0f, 0.01f));
+        for (int Count = 0; Count < ConstList.BoardSize; Count++)
+            MoveSpawnPoint(new Vector3(-0.01f, 0f, 0f));
+        for (int Count = 0; Count < PieceIndex; Count++)
+            ChangeControlPiece(1);
+        for (int Count = 0; Count < ReverseCount; Count++)
+            PieceReverse();
+        for (int Count = 0; Count < RotateCount; Count++)
+            PieceRotate(1);
+        for (int Count = 0; Count < IndexY; Count++)
+            MoveSpawnPoint(new Vector3(0f, 0f, -0.01f));
+        for (int Count = 0; Count < IndexX; Count++)
+            MoveSpawnPoint(new Vector3(0.01f, 0f, 0f));
+        SetPiece();
     }
 }

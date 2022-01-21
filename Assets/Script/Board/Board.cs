@@ -16,7 +16,9 @@ public class Board : MonoBehaviour
     {
     }
 
-    public bool SetPiece(List<int[]> PieceDesign, int[] Pivot, int PlayerNum)
+    //ピースを置けない場合はfalseを返し、置ける場合はtrueを返す。
+    //初めて置く場合は頂点が接している条件を満たせないので、別関数での確認
+    public bool IsPossibleSetPiece(List<int[]> PieceDesign, int[] Pivot, int PlayerNum)
     {
         List<int[]> NewPieceDesign = new List<int[]>();
         foreach (int[] Point in PieceDesign)
@@ -27,12 +29,10 @@ public class Board : MonoBehaviour
             TmpPoint[1] = Point[1] + Pivot[1];
             NewPieceDesign.Add(TmpPoint);
         }
-        return SetPiece(NewPieceDesign, PlayerNum);
+        return IsPossibleSetPiece(NewPieceDesign, PlayerNum);
     }
 
-    //ピースを置く。置けない場合はfalseを返し、置けた場合はBoardInfoに書き込んで、trueを返す。
-    //初めて置く場合は頂点が接している条件を満たせないので、別関数での確認
-    public bool SetPiece(List<int[]> PieceDesign, int PlayerNum)
+    public bool IsPossibleSetPiece(List<int[]> PieceDesign, int PlayerNum)
     {
         foreach (int[] Point in PieceDesign)
         {
@@ -55,13 +55,32 @@ public class Board : MonoBehaviour
         }
         if (!IsPossible)
             return false;
+        return true;
+    }
+
+    //ピースを置いたことにするため、BoardInfoに書き込む。
+    public void SetPiece(List<int[]> PieceDesign, int[] Pivot, int PlayerNum)
+    {
+        List<int[]> NewPieceDesign = new List<int[]>();
+        foreach (int[] Point in PieceDesign)
+        {
+            int[] TmpPoint = new int[]{0, 0};
+
+            TmpPoint[0] = Point[0] + Pivot[0];
+            TmpPoint[1] = Point[1] + Pivot[1];
+            NewPieceDesign.Add(TmpPoint);
+        }
+        SetPiece(NewPieceDesign, PlayerNum);
+    }
+
+    public void SetPiece(List<int[]> PieceDesign, int PlayerNum)
+    {
         foreach (int[] Point in PieceDesign)
         {
             BoardInfo[Point[0], Point[1]] = PlayerNum + 1;
         }
         if (!SetPlayer.Contains(PlayerNum + 1))
             SetPlayer.Add(PlayerNum + 1);
-        return true;
     }
 
     //スタート時はプレイヤーごとのスタート地点が違うので、CheckStartPointsで定義
@@ -74,7 +93,7 @@ public class Board : MonoBehaviour
         return false;
     }
 
-    //頂点同士が接しているか
+    //頂点同士が接しているか確認
     bool CheckApplicationRule(int[] Point, int PlayerNum)
     {
         int[][] CheckDiagonalPoints = new int[][]{new int[]{1, 1}, new int[]{-1, 1}, new int[]{1, -1}, new int[]{-1, -1}};
