@@ -49,9 +49,9 @@ public class PieceDesignPTest
             Debug.Log("Ex");
             DebugLogPieceList((List<int[]>)TestCase[2]);
             Debug.Log("Act");
-            DebugLogPieceList(Script.Design);
+            DebugLogPieceList(Script.PieceInfo.Design);
 
-            Assert.AreEqual((bool)TestCase[0], Utils.ComparePiecePointList((List<int[]>)TestCase[2], Script.Design));
+            Assert.AreEqual((bool)TestCase[0], Utils.ComparePiecePointList((List<int[]>)TestCase[2], Script.PieceInfo.Design));
             yield return null;
         }
     }
@@ -114,9 +114,9 @@ public class PieceDesignPTest
             Debug.Log("Ex");
             DebugLogPieceList(ExPieceList);
             Debug.Log("Act");
-            DebugLogPieceList(Script.Design);
+            DebugLogPieceList(Script.PieceInfo.Design);
 
-            Assert.AreEqual(ExBool, Utils.ComparePiecePointList(ExPieceList, Script.Design));
+            Assert.AreEqual(ExBool, Utils.ComparePiecePointList(ExPieceList, Script.PieceInfo.Design));
             yield return null;
         }
     }
@@ -187,9 +187,9 @@ public class PieceDesignPTest
             Debug.Log("Ex");
             DebugLogPieceList(ExPieceList);
             Debug.Log("Act");
-            DebugLogPieceList(Script.Design);
+            DebugLogPieceList(Script.PieceInfo.Design);
 
-            Assert.AreEqual(ExBool, Utils.ComparePiecePointList(ExPieceList, Script.Design));
+            Assert.AreEqual(ExBool, Utils.ComparePiecePointList(ExPieceList, Script.PieceInfo.Design));
             yield return null;
         }
     }
@@ -230,17 +230,17 @@ public class PieceDesignPTest
             Piece Script = NewPiece.GetComponent<Piece>();
 
             DebugLogPieceList(ExBeforePieceList);
-            DebugLogPieceList(Script.Design);
-            Assert.AreEqual(true, Utils.ComparePiecePointList(ExBeforePieceList, Script.Design));
+            DebugLogPieceList(Script.PieceInfo.Design);
+            Assert.AreEqual(true, Utils.ComparePiecePointList(ExBeforePieceList, Script.PieceInfo.Design));
 
             Script.Reverse();
             
             Debug.Log("Ex");
             DebugLogPieceList(ExPieceList);
             Debug.Log("Act");
-            DebugLogPieceList(Script.Design);
+            DebugLogPieceList(Script.PieceInfo.Design);
 
-            Assert.AreEqual(ExBool, Utils.ComparePiecePointList(ExPieceList, Script.Design));
+            Assert.AreEqual(ExBool, Utils.ComparePiecePointList(ExPieceList, Script.PieceInfo.Design));
             yield return null;
         }
     }

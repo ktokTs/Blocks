@@ -5,7 +5,8 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "PIece",
-        "Utils"
+        "Utils",
+        "Board"
     ],
     "includePlatforms": [
         "Editor"

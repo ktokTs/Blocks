@@ -1,15 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
-public class Board : MonoBehaviour
+public class Board
 {
     public int[,] BoardInfo{get; set;} //ボードのピースの位置を管理する2重配列
-    List<int> SetPlayer = new List<int>(); //ピースを置いたことのあるプレイヤーリスト
+    List<int> SetPlayer; //ピースを置いたことのあるプレイヤーリスト
+    const int PlayerNum = 2;
+    const int AllPiece = 89;
 
-    void Start()
+    public Board(Board Src)
+    {
+        BoardInfo = Src.CopyBoardInfo();
+        SetPlayer = null;
+    }
+
+    public Board()
     {
         BoardInfo = new int[ConstList.BoardSize,ConstList.BoardSize];
+        SetPlayer = new List<int>();
     }
 
     void Update()
@@ -42,7 +52,7 @@ public class Board : MonoBehaviour
         bool IsPossible = false;
         foreach (int[] Point in PieceDesign)
         {
-            if (!SetPlayer.Contains(PlayerNum + 1))
+            if (SetPlayer != null && !SetPlayer.Contains(PlayerNum + 1))
             {
                 IsPossible = CheckStartRule(Point, PlayerNum);
             }
@@ -79,7 +89,7 @@ public class Board : MonoBehaviour
         {
             BoardInfo[Point[0], Point[1]] = PlayerNum + 1;
         }
-        if (!SetPlayer.Contains(PlayerNum + 1))
+        if (SetPlayer != null && !SetPlayer.Contains(PlayerNum + 1))
             SetPlayer.Add(PlayerNum + 1);
     }
 
@@ -138,8 +148,56 @@ public class Board : MonoBehaviour
         return true;
     }
 
+    public int[,] CopyBoardInfo()
+    {
+        int[,] ResBoardInfo = new int[ConstList.BoardSize,ConstList.BoardSize];
+        
+        for (int IndexY = 0; IndexY < ConstList.BoardSize; IndexY++)
+        {
+            for (int IndexX = 0; IndexX < ConstList.BoardSize; IndexX++)
+            {
+                ResBoardInfo[IndexY, IndexX] = BoardInfo[IndexY, IndexX];
+            }
+        }
+        return ResBoardInfo;
+    }
+
+    public List<int> CopySetPlayer()
+    {
+        List<int> ResSetPlayer = new List<int>();
+        
+        foreach (int Player in SetPlayer)
+        {
+            ResSetPlayer.Add(Player);
+        }
+        return ResSetPlayer;
+    }
+
+    public List<int> CheckWinPlayer()
+    {
+        int[] PlayerScores = new int[PlayerNum];
+        List<int> Winner = new List<int>();
+        
+        foreach (int Piece in BoardInfo)
+        {
+            if (Piece == 0)
+                continue;
+            PlayerScores[Piece - 1] += 1;
+        }
+        int MaxScore =  PlayerScores.Max();
+        int Index = 0;
+        foreach (int PlayerScore in PlayerScores)
+        {
+            Debug.Log(Index + ": " + (AllPiece - PlayerScore));
+            if (MaxScore == PlayerScore)
+                Winner.Add(Index);
+            Index++;
+        }
+        return Winner;
+    }
+
     //デバッグ用
-    void PrintBoardInfo(int[,] Board)
+    public void PrintBoardInfo(int[,] Board)
     {
         int y = 0;
         string PrintList = "\n";

@@ -4,8 +4,6 @@ using UnityEngine;
 
 public static class PieceDesign
 {
-    static Dictionary<string, int[,]> DesignDict;
-
     public static List<int[]> ReturnDesign(GameObject ParentObj)
     {
         Vector3 Pivot = Vector3.zero;
@@ -50,4 +48,19 @@ public static class PieceDesign
         return Design;
     }
 
+    public static List<int[]> CopyPieceDesign(List<int[]> Design)
+    {
+        List<int[]> Res = new List<int[]>();
+        foreach (int[] Piece in Design)
+        {
+            int Len = Piece.Length;
+            int[] TmpPoint = new int[Len];
+            for (int Index = 0; Index < Len; Index++)
+            {
+                TmpPoint[Index] = Piece[Index];
+            }
+            Res.Add(TmpPoint);
+        }
+        return Res;
+    }
 }

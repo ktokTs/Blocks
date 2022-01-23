@@ -80,8 +80,6 @@ public class PlayTest
             PCS.MoveSpawnPoint(new Vector3(-0.01f, 0f, 0f));
         if (Char == 'z')
             PCS.ShowPieceInfo();
-        if (Char == 'x')
-            PCS.IsPossibleAnySetPiece();
         return false;
     }
 }
