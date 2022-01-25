@@ -32,7 +32,6 @@ public class Piece : MonoBehaviour
     public void Rotate(int Dir)
     {
         PieceInfo.Rotate(Dir);
-        //
         if (ReverseAngle != 0)
             Dir *= -1;
         RotateAngle += 90 * Dir;

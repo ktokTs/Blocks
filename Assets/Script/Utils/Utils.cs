@@ -22,7 +22,6 @@ public static class Utils
 
     public static bool ComparePiecePointList(List<int[]> Ex, List<int[]> Act)
     {
-        Debug.Log(Ex.Count + " " + Act.Count);
         if (Ex.Count != Act.Count)
             return false;
         if (CheckPiecePointDuplication(Act) || CheckPiecePointDuplication(Ex))

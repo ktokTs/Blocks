@@ -7,18 +7,77 @@ public class PieceInfo
     public List<int[]> StartDesign;
     public List<int[]> Design{get; set;}
     public int PieceCount;
-    // Start is called before the first frame update
+    public int[,] EffectiveList = new int[2, 4]{{1, 0, 0, 0}, {0, 0, 0, 0}};
+
     public PieceInfo(List<int[]> Design)
     {
         this.Design = Design;
         StartDesign = CopyPieceDesign();
         PieceCount = Design.Count;
+        SetEffectiveReverse();
     }
 
-    // Update is called once per frame
-    void Update()
+    public PieceInfo(PieceInfo PieceInfo)
     {
-        
+        this.Design = PieceInfo.CopyPieceDesign();
+        StartDesign = CopyPieceDesign();
+        PieceCount = PieceInfo.PieceCount;
+        this.EffectiveList = PieceInfo.EffectiveList;
+    }
+
+    void SetEffectiveReverse()
+    {
+        List<List<int[]>> EffectivePieceDesignList = new List<List<int[]>>();
+
+        for (int ReverseCount = 0; ReverseCount < 2; ReverseCount++)
+        {
+            for (int RotateCount = 0; RotateCount < 4; RotateCount++)
+            {
+                if (!IsEffectiveDesign(Design, EffectivePieceDesignList))
+                    EffectiveList[ReverseCount, RotateCount] = 0;
+                else
+                {
+                    EffectiveList[ReverseCount, RotateCount] = 1;
+                    EffectivePieceDesignList.Add(CopyPieceDesign());
+                }
+                Rotate(1);
+            }
+            Reverse();
+        }
+    }
+
+    bool IsEffectiveDesign(List<int[]> Design, List<List<int[]>> EffectivePieceDesignList)
+    {
+        bool IsEffective = true;
+
+        if (EffectivePieceDesignList.Count == 0)
+            return true;
+
+        foreach (List<int[]> EffectivePieceDesign in EffectivePieceDesignList)
+        {
+            foreach(int[] Pivot in EffectivePieceDesign)
+            {
+                List<int[]> TmpPieceDesign = CopyPieceDesign();
+                MovePivot(TmpPieceDesign, Pivot);
+                if (Utils.ComparePiecePointList(EffectivePieceDesign, TmpPieceDesign))
+                {
+                    IsEffective = false;
+                    break;
+                }
+            }
+            if (!IsEffective)
+                break;
+        }
+        return IsEffective;
+    }
+
+    public void MovePivot(List<int[]> Design, int[] Pivot)
+    {
+        foreach (int[] Point in Design)
+        {
+            Point[0] += Pivot[0];
+            Point[1] += Pivot[1];
+        }
     }
 
     //Designの配列のディープコピーを作成
@@ -40,7 +99,7 @@ public class PieceInfo
 
     public void ReturnWaitPoint()
     {
-        Design = CopyPieceDesign();
+        Design = PieceDesign.CopyPieceDesign(StartDesign);
     }
 
     public void Rotate(int Dir)

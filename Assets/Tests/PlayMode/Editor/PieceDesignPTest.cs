@@ -56,7 +56,6 @@ public class PieceDesignPTest
         }
     }
 
-    
     static object[] TestCaseRotate = 
     new object[] {
         new object[]
@@ -66,6 +65,7 @@ public class PieceDesignPTest
             new List<int>{1},
             new List<int[]>{new int[]{0, 0}, new int[]{1, 0}, new int[]{2, 0}},
         },
+
         new object[]
         {
             true,
@@ -241,6 +241,50 @@ public class PieceDesignPTest
             DebugLogPieceList(Script.PieceInfo.Design);
 
             Assert.AreEqual(ExBool, Utils.ComparePiecePointList(ExPieceList, Script.PieceInfo.Design));
+            yield return null;
+        }
+    }
+
+    
+    
+    static object[] TestCaseEffective = 
+    new object[] {
+        new object[]
+        {
+            "test",
+            true,
+            "P3-2",
+            new List<int[]>{new int[]{0, 0}, new int[]{0, 1}, new int[]{0, 2}},
+            new List<int[]>{new int[]{0, 0}, new int[]{0, 1}, new int[]{0, 2}},
+        },
+        new object[]
+        {
+            "test",
+            true,
+            "P3-1",
+            new List<int[]>{new int[]{0, 0}, new int[]{0, 1}, new int[]{0, 2}},
+            new List<int[]>{new int[]{0, 0}, new int[]{0, 1}, new int[]{0, 2}},
+        },
+    };
+
+    [UnityTest]
+    public IEnumerator PieceDesignPTestEffective ()
+    {
+        foreach (object[] TestCase in TestCaseEffective)
+        {
+            Debug.Log("TestCase" + (string)TestCase[0]);
+            bool ExBool = (bool)TestCase[1];
+            List<int[]> ExBeforePieceList = (List<int[]>)TestCase[3];
+
+            GameObject NewPiece = Object.Instantiate((GameObject)Resources.Load((string)TestCase[2]));
+            NewPiece.transform.position = new Vector3(0f, 0.3f, 0f);
+            yield return null;
+            PieceInfo Script = NewPiece.GetComponent<Piece>().PieceInfo;
+
+            foreach (int i in Script.EffectiveList)
+                Debug.Log(i);
+
+            //Assert.AreEqual(ExBool, Utils.ComparePiecePointList(ExPieceList, Script.PieceInfo.Design));
             yield return null;
         }
     }

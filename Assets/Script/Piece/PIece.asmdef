@@ -1,3 +1,16 @@
 {
-	"name": "PIece"
+    "name": "PIece",
+    "rootNamespace": "",
+    "references": [
+        "GUID:b64d4bea0ed203446bb5cc5039bf4c92"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

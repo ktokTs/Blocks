@@ -100,14 +100,13 @@ public class PieceController : MonoBehaviour
 //            NPC.IsPossibleAnySetPiece();
         if (Input.GetKeyDown(KeyCode.C))
         {
-            List<object[]> Instruction = NPC.GetInstruction(AllPieceList[PlayerNum], BoardScript, Turn, PlayerNum);
-            if (Instruction.Count == 0)
+            object[] Instruction = NPC.GetInstruction(AllPieceList, BoardScript, Turn, PlayerNum);
+            if (Instruction == null)
             {
                 Pass();
                 return ;
             }
-            //ExecInstruction(Instruction[Random.Range(0, Instruction.Count)]);
-            ExecInstruction(NPC.Evaluate(Instruction, BoardScript, PlayerNum, Turn));
+            ExecInstruction(Instruction);
         }
         if (Input.GetKeyDown(KeyCode.P))
             Pass();
@@ -343,14 +342,14 @@ public class PieceController : MonoBehaviour
         int IndexX = (int)Instruction[4];
         List<int[]> PieceDesign = (List<int[]>)Instruction[5];
 
-        Debug.Log
+/*         Debug.Log
         (
             PieceIndex + "\n" + 
             "ReverseCount = " + ReverseCount + "\n" + 
             "RotateCount = " + RotateCount + "\n" + 
             IndexY + ", " + IndexX
         );
-        PieceInfo.DebugLogPieceList(PieceDesign);
+        PieceInfo.DebugLogPieceList(PieceDesign); */
         for (int Count = 0; Count < ConstList.BoardSize; Count++)
             MoveSpawnPoint(new Vector3(0f, 0f, 0.01f));
         for (int Count = 0; Count < ConstList.BoardSize; Count++)
@@ -375,7 +374,7 @@ public class PieceController : MonoBehaviour
     void Pass()
     {
         FinishPlayerList.Add(PlayerNum);
-        Debug.Log("Add " + PlayerNum);
+        //Debug.Log("Add " + PlayerNum);
         ChangePlayer();
     }
 
@@ -383,13 +382,13 @@ public class PieceController : MonoBehaviour
     {
         while(!IsEndGame)
         {
-            List<object[]> Instruction = NPC.GetInstruction(AllPieceList[PlayerNum], BoardScript, Turn, PlayerNum);
-            if (Instruction.Count == 0)
+            object[] Instruction = NPC.GetInstruction(AllPieceList, BoardScript, Turn, PlayerNum);
+            if (Instruction == null)
             {
                 Pass();
-                return ;
+                continue ;
             }
-            ExecInstruction(NPC.Evaluate(Instruction, BoardScript, PlayerNum, Turn));
+            ExecInstruction(Instruction);
         }
     }
 }

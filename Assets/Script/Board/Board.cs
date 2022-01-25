@@ -104,7 +104,7 @@ public class Board
     }
 
     //頂点同士が接しているか確認
-    bool CheckApplicationRule(int[] Point, int PlayerNum)
+    public bool CheckApplicationRule(int[] Point, int PlayerNum)
     {
         int[][] CheckDiagonalPoints = new int[][]{new int[]{1, 1}, new int[]{-1, 1}, new int[]{1, -1}, new int[]{-1, -1}};
         bool IsPossible = false;
@@ -188,7 +188,7 @@ public class Board
         int Index = 0;
         foreach (int PlayerScore in PlayerScores)
         {
-            Debug.Log(Index + ": " + (AllPiece - PlayerScore));
+            //Debug.Log(Index + ": " + (AllPiece - PlayerScore));
             if (MaxScore == PlayerScore)
                 Winner.Add(Index);
             Index++;
