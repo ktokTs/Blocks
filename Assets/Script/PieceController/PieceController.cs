@@ -263,6 +263,8 @@ public class PieceController : MonoBehaviour
             MoveSpawnPoint(new Vector3(0f, 0f, 0.01f));
         for (int Count = 0; Count < ConstList.BoardSize; Count++)
             MoveSpawnPoint(new Vector3(-0.01f, 0f, 0f));
+        for (; PieceCount != 0;)
+            ChangeControlPiece(1);
 
         for (int Count = 0; Count < PieceIndex; Count++)
             ChangeControlPiece(1);

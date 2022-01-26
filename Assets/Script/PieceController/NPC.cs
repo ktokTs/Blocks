@@ -204,7 +204,7 @@ public static class NPC
                     {
                         if (Count++ > 1000)
                         {
-                            UnityEngine.Debug.Log(Count);
+                            UnityEngine.Debug.Log(Count); //処理時間が長すぎることがあるから
                             return PossibleSetPieceList;
                         }
                         RandomInstruct_IsPossibleSetPiece
