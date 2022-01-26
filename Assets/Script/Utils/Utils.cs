@@ -5,6 +5,7 @@ using System;
 
 public static class Utils
 {
+    // 配列の中身が順不同で同じか確認
     public static bool CompareArray<T>(T[] Ex, T[] Act) where T : IComparable
     {
         if (Ex.Length != Act.Length)
@@ -20,6 +21,7 @@ public static class Utils
         return true;
     }
 
+    // ピースの位置が順不同で同じか確認
     public static bool ComparePiecePointList(List<int[]> Ex, List<int[]> Act)
     {
         if (Ex.Count != Act.Count)
@@ -41,6 +43,7 @@ public static class Utils
         return true;
     }
 
+    // 配列の2つ目までの要素が等しいか
     public static bool ComparePiecePoint<T>(T[] Ex, T[] Act) where T : IComparable
     {
         if (Ex[0].Equals(Act[0]))
@@ -51,6 +54,7 @@ public static class Utils
         return false;
     }
 
+    // ピースの重複が発生していないか
     public static bool CheckPiecePointDuplication(List<int[]> Array)
     {
         int IndexA = 0;
@@ -70,6 +74,7 @@ public static class Utils
         return false;
     }
 
+    // Pointがボードの中に入っているか
     public static bool IsPieceInBoard(int[] Point)
     {
         int PointX = Point[0];

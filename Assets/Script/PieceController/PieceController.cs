@@ -17,7 +17,7 @@ public class PieceController : MonoBehaviour
     GameObject ControlPiece; //操作中のピース
     Board BoardScript;
     int[] PiecePivot; //現在操作中のピースの原点の位置
-    List<int> FinishPlayerList;
+    List<int> FinishPlayerList; // ピースを置けなくなったプレイヤーリスト
     bool IsEndGame;
     int Turn = 0;
 
@@ -66,8 +66,13 @@ public class PieceController : MonoBehaviour
         return WaitPoint;
     }
 
-    //F,Gでピース変更。スペースでピース設置
-    //WASDでピース移動
+    // F,Gでピース変更。スペースでピース設置
+    // WASDでピース移動
+    // E,Qで回転
+    // Rで反転
+    // Pでパス
+    // CでCPUに行わせる
+    // Oで最後までCPUに行わせる
     void Update()
     {
         if (IsEndGame)
@@ -77,9 +82,7 @@ public class PieceController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.G))
             ChangeControlPiece(-1);
         if (Input.GetKeyDown(KeyCode.Space))
-        {
             SetPiece();
-        }
         if (Input.GetKeyDown(KeyCode.R))
             PieceReverse();
         if (Input.GetKeyDown(KeyCode.E))
@@ -96,8 +99,6 @@ public class PieceController : MonoBehaviour
             MoveSpawnPoint(new Vector3(-0.01f, 0f, 0f));
         if (Input.GetKeyDown(KeyCode.Z))
             ShowPieceInfo();
-//        if (Input.GetKeyDown(KeyCode.X))
-//            NPC.IsPossibleAnySetPiece();
         if (Input.GetKeyDown(KeyCode.C))
         {
             object[] Instruction = NPC.GetInstruction(AllPieceList, BoardScript, Turn, PlayerNum);
@@ -139,6 +140,7 @@ public class PieceController : MonoBehaviour
         return true;
     }
 
+    // プレイヤーを変更する。ついでに終了判定も行ってます。
     void ChangePlayer()
     {
         Turn++;
@@ -157,6 +159,7 @@ public class PieceController : MonoBehaviour
         ChangeControlPiece(-1);
     }
 
+    // ゲームの勝者判定。判定後はIsEndGameをTrueにして操作を受け付けなくする
     void EndGame()
     {
         List<int> Winner = new List<int>();
@@ -166,20 +169,6 @@ public class PieceController : MonoBehaviour
             Debug.Log("Draw");
         else
             Debug.Log(Winner[0] + " Win");
-        
-/*      List<int> PlayerScore = new List<int>();
-        PlayerNum = 1;
-        foreach (List<GameObject> PlayerPiece in AllPieceList)
-        {
-            int Score = 0;
-            foreach (GameObject Piece in PlayerPiece)
-            {
-                Score += Piece.GetComponent<Piece>().PieceInfo.PieceCount;
-            }
-            Debug.Log("Player" + PlayerNum + ": " + Score);
-            PlayerScore.Add(Score);
-            PlayerNum++;
-        } */
         IsEndGame = true;
     }
 
@@ -218,6 +207,7 @@ public class PieceController : MonoBehaviour
         ControlPiece.GetComponent<Piece>().Rotate(Dir);
     }
 
+    // ピースの位置を移動させる。
     public void MoveSpawnPoint(Vector3 diff)
     {
         if (ControlPiece == null)
@@ -228,6 +218,7 @@ public class PieceController : MonoBehaviour
         if (PointX < 0 || ConstList.BoardSize <= PointX || 
         PointY < 0 || ConstList.BoardSize <= PointY)
             return;
+
         this.transform.position += diff;
         SpawnPoint += diff;
         diff *= 100;
@@ -241,6 +232,7 @@ public class PieceController : MonoBehaviour
         ControlPiece.GetComponent<Piece>().PieceInfo.DebugLogPieceList();
     }
 
+    // 親のオブジェクト配下のオブジェクトのマテリアルを変更する
     public void SetMaterialToChild(GameObject Obj, Material Material)
     {
         foreach (Transform Child in Obj.transform)
@@ -248,89 +240,6 @@ public class PieceController : MonoBehaviour
             Child.GetComponent<Renderer>().material = Material;
         }
     }
-
-/*     //置けるピースがあるか検索を行う。
-    //ピースの種類(先頭から何番目のピースか)
-    // 反転
-    //  回転
-    //   Y軸の位置
-    //    X軸の位置
-    // の順でループを行っている。置ける場合にはループの情報を引き渡す
-    public List<object[]> IsPossibleAnySetPiece()
-    {
-        List<GameObject> PieceList = AllPieceList[PlayerNum];
-        List<object[]> PossibleSetPieceList = new List<object[]>();
-
-        int PieceIndex = -1;
-        int PossibleSetPieceListCount = 0;
-        foreach (GameObject Piece in PieceList)
-        {
-            Piece ControlPieceScript = Piece.GetComponent<Piece>();
-            List<int[]> CurrentPieceDesign = ControlPieceScript.PieceInfo.CopyPieceDesign();
-            
-            PieceIndex++;
-            if (SkipPieceCount(ControlPieceScript.PieceInfo.PieceCount, Turn, PossibleSetPieceListCount))
-                continue ;
-            for (int ReverseCount = 0; ReverseCount < 2; ReverseCount++)
-            {
-                for (int RotateCount = 0; RotateCount < 4; RotateCount++)
-                {
-                    for (int IndexY = 0; IndexY < ConstList.BoardSize; IndexY++)
-                    {
-                        for (int IndexX = 0; IndexX < ConstList.BoardSize; IndexX++)
-                        {
-                            bool IsSpace = BoardScript.IsPossibleSetPiece(CurrentPieceDesign, new int[]{IndexY, IndexX}, PlayerNum);
-                            if (IsSpace)
-                            {
-                                PossibleSetPieceListCount++;
-                                PossibleSetPieceList.Add( new object[]
-                                {
-                                    PieceIndex,
-                                    ReverseCount,
-                                    RotateCount,
-                                    IndexY,
-                                    IndexX,
-                                    PieceDesign.CopyPieceDesign(CurrentPieceDesign),
-                                });
-                            }
-                        }
-                    }
-                    PieceDesign.Rotate(CurrentPieceDesign, 1);
-                }
-                PieceDesign.Reverse(CurrentPieceDesign);
-            }
-            Debug.Log(Piece.name + " " + PieceIndex);
-        }
-        return PossibleSetPieceList;
-    }
-
-    bool SkipPieceCount(int PieceCount, int Turn, int ListCount)
-    {
-        if (ListCount < 10)
-            return false;
-        int SkipTurn = 0;
-        switch (PieceCount)
-        {
-            case 5:
-                SkipTurn = 2 * 5;
-                break;
-            case 4:
-                SkipTurn = 2 * 7;
-                break;
-            case 3:
-                SkipTurn = 2 * 9;
-                break;
-            case 2:
-                SkipTurn = 2 * 11;
-                break;
-            case 1:
-                SkipTurn = 2 * 13;
-                break;
-        }
-        if (SkipTurn >= Turn)
-            return false;
-        return true;
-    } */
 
     //一旦原点まで基点を戻し、Instructionの指示に沿って回転や移動を行い、SetPieceを行う。
     void ExecInstruction(object[] Instruction)
@@ -354,6 +263,7 @@ public class PieceController : MonoBehaviour
             MoveSpawnPoint(new Vector3(0f, 0f, 0.01f));
         for (int Count = 0; Count < ConstList.BoardSize; Count++)
             MoveSpawnPoint(new Vector3(-0.01f, 0f, 0f));
+
         for (int Count = 0; Count < PieceIndex; Count++)
             ChangeControlPiece(1);
         for (int Count = 0; Count < ReverseCount; Count++)
@@ -374,7 +284,6 @@ public class PieceController : MonoBehaviour
     void Pass()
     {
         FinishPlayerList.Add(PlayerNum);
-        //Debug.Log("Add " + PlayerNum);
         ChangePlayer();
     }
 

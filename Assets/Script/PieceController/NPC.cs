@@ -17,6 +17,7 @@ public static class NPC
     const int CanUsePiece3 = 13;
     const int CanUsePiece2 = 15;
     const int CanUsePiece1 = 17;
+    static List<int> CPUNum = new List<int>{0};
 
     static long ExecTime;
 
@@ -27,8 +28,6 @@ public static class NPC
     //   Y軸の位置
     //    X軸の位置
     // の順でループを行っている。置ける場合にはループの情報を引き渡す
-
-
     public static object[] GetInstruction(List<List<GameObject>> AllPieceList, Board BoardInfo, int Turn, int PlayerNum)
     {
         List<List<PieceInfo>> NewAllPieceList = new List<List<PieceInfo>>();
@@ -39,7 +38,7 @@ public static class NPC
             foreach (GameObject Piece in PlayerPieceList)
             {
                 PieceInfo PieceInfo = Piece.GetComponent<Piece>().PieceInfo;
-                PieceInfo ClonePieceInfo = new PieceInfo(PieceInfo.StartDesign);
+                PieceInfo ClonePieceInfo = new PieceInfo(PieceInfo);
                 NewPlayerPieceList.Add(ClonePieceInfo);
             }
             NewAllPieceList.Add(NewPlayerPieceList);
@@ -47,6 +46,7 @@ public static class NPC
         return GetInstruction(NewAllPieceList, BoardInfo, Turn, PlayerNum);
     }
 
+    // CPUNumにPlayerNumが含まれているかどうかで処理方法を変えている
     public static object[] GetInstruction(List<List<PieceInfo>> AllPieceList, Board BoardInfo, int Turn, int PlayerNum)
     {
         List<object[]> AllInstructions = GetAllInstructions(AllPieceList[PlayerNum], BoardInfo, Turn, PlayerNum);
@@ -54,9 +54,8 @@ public static class NPC
         if (AllInstructions == null || AllInstructions.Count == 0)
             return null;
 
-        if (PlayerNum == 0 && false)
+        if (CPUNum.Contains(PlayerNum))
         {
-            //AllInstructions = GetRandomInstruct(AllPieceList[PlayerNum], BoardInfo, Turn, PlayerNum);
             return Evaluate(AllInstructions, BoardInfo, PlayerNum, Turn);
         }
         if (Turn < ChangeTurnCount_EvaluateMethod)
@@ -71,9 +70,6 @@ public static class NPC
     // Boardクラス：　ボードの状態　PlayerNum：プレイヤー番号　Turn：ターン数
     static object[] SimulationEvaluate(List<List<PieceInfo>> AllPieceList, List<object[]> AllInstructions, Board BoardInfo, int PlayerNum, int Turn)
     {
-        Stopwatch sw = new Stopwatch();
-        sw.Start();
-
         List<int> Scores = new List<int>();
         List<object[]> NewAllInstructions = new List<object[]>();
 
@@ -94,19 +90,8 @@ public static class NPC
             int IndexY = (int)Instruction[3];
             int IndexX = (int)Instruction[4];
             List<int[]> PieceDesign = (List<int[]>)Instruction[5];
-
             Board NewBoardInfo = new Board(BoardInfo);
-            List<List<PieceInfo>> NewAllPieceList = new List<List<PieceInfo>>();
-            
-            foreach(List<PieceInfo> PlayerPieceInfoList in AllPieceList)
-            {
-                List<PieceInfo> NewPieceList = new List<PieceInfo>();
-                foreach(PieceInfo PieceInfo in PlayerPieceInfoList)
-                {
-                    NewPieceList.Add(new PieceInfo(PieceInfo.StartDesign));
-                }
-                NewAllPieceList.Add(NewPieceList);
-            }
+            List<List<PieceInfo>> NewAllPieceList = CloneAllPieceList(AllPieceList);
 
             NewBoardInfo.SetPiece(PieceDesign, new int[]{IndexY, IndexX}, PlayerNum);
             NewAllPieceList[PlayerNum].Remove(NewAllPieceList[PlayerNum][PieceIndex]);
@@ -115,11 +100,23 @@ public static class NPC
         }
         //UnityEngine.Debug.Log(Scores.Max());
         
-        sw.Stop();
-        UnityEngine.Debug.Log("全体の実行時間" + sw.ElapsedMilliseconds);
-        UnityEngine.Debug.Log("GetAllInstructionsの実行時間" + ExecTime);
-        ExecTime = 0;
         return NewAllInstructions[Scores.IndexOf(Scores.Max())];
+    }
+
+    static List<List<PieceInfo>> CloneAllPieceList(List<List<PieceInfo>> AllPieceList)
+    {
+        List<List<PieceInfo>> NewAllPieceList = new List<List<PieceInfo>>();
+
+        foreach(List<PieceInfo> PlayerPieceInfoList in AllPieceList)
+        {
+            List<PieceInfo> NewPieceList = new List<PieceInfo>();
+            foreach(PieceInfo PieceInfo in PlayerPieceInfoList)
+            {
+                NewPieceList.Add(new PieceInfo(PieceInfo));
+            }
+            NewAllPieceList.Add(NewPieceList);
+        }
+        return NewAllPieceList;
     }
 
     // 勝敗が決まるまでランダムに手を実行する
@@ -130,23 +127,12 @@ public static class NPC
     {
         int MyPlayerNum = PlayerNum;
         int Score = 0;
-        Stopwatch sw = new Stopwatch();
 
         PlayerNum = IncreasePlayerNum(PlayerNum);
         for (int LoopCount = 0; LoopCount < MaxLoopCount; LoopCount++)
         {
             Board NewBoardInfo = new Board(BoardInfo);
-            List<List<PieceInfo>> NewAllPieceList = new List<List<PieceInfo>>();
-            
-            foreach (List<PieceInfo> PlayerPieceInfoList in AllPieceList)
-            {
-                List<PieceInfo> NewPieceList = new List<PieceInfo>();
-                foreach (PieceInfo PieceInfo in PlayerPieceInfoList)
-                {
-                    NewPieceList.Add(new PieceInfo(PieceInfo.StartDesign));
-                }
-                NewAllPieceList.Add(NewPieceList);
-            }
+            List<List<PieceInfo>> NewAllPieceList = CloneAllPieceList(AllPieceList);
 
             while (true)
             {
@@ -157,14 +143,8 @@ public static class NPC
                     if (Turn > 100)
                     break;
 
-                    sw.Start();
-
                     List<object[]> AllInstructions = GetRandomInstruct(NewAllPieceList[PlayerNum], NewBoardInfo, Turn, PlayerNum);
                     //List<object[]> AllInstructions = GetAllInstructions(NewAllPieceList[PlayerNum], NewBoardInfo, Turn, PlayerNum);
-                    
-                    sw.Stop();
-                    ExecTime += sw.ElapsedMilliseconds;
-                    sw.Reset();
 
                     object[] Instruction;
                     if (AllInstructions.Count == 0)
@@ -174,7 +154,7 @@ public static class NPC
                     }
                     else
                     {
-                        Instruction = AllInstructions[UnityEngine.Random.Range(0, AllInstructions.Count)];
+                        Instruction = AllInstructions[UnityEngine.Random.Range(0, AllInstructions.Count - 1)];
                         NewBoardInfo.SetPiece((List<int[]>)Instruction[5], new int[]{(int)Instruction[3], (int)Instruction[4]}, PlayerNum);
                         NewAllPieceList[PlayerNum].Remove(NewAllPieceList[PlayerNum][(int)Instruction[0]]);
                     }
@@ -183,6 +163,7 @@ public static class NPC
                 if (PassPlayerCount == MaxPlayer)
                     break;
             }
+
             List<int> Winner = NewBoardInfo.CheckWinPlayer(); // そのボードの勝者をList<int>型で返す。同率の場合は要素数が2以上となる
             if (Winner.Count != 1)
                 Score += 1;
@@ -201,23 +182,14 @@ public static class NPC
             PlayerNum = 0;
         return PlayerNum;
     }
+
     static List<object[]> GetRandomInstruct(List<PieceInfo> PieceList, Board BoardInfo, int Turn, int PlayerNum)
     {
         List<object[]> PossibleSetPieceList = new List<object[]>();
-        List<int[]> PossibleSetPiecePointList = new List<int[]>();
-        for (int IndexY = 0; IndexY < ConstList.BoardSize; IndexY++)
-        {
-            for (int IndexX = 0; IndexX < ConstList.BoardSize; IndexX++)
-            {
-                bool IsSpace = BoardInfo.IsPossibleSetPiece(new List<int[]>{new int[]{0, 0}}, new int[]{IndexY, IndexX}, PlayerNum);
-                if (IsSpace)
-                    PossibleSetPiecePointList.Add(new int[]{IndexY, IndexX});
-            }
-        }
+        List<int[]> PossibleSetPiecePointList = GetPossibleSetPiecePointList(BoardInfo, PlayerNum);
         PossibleSetPiecePointList = PossibleSetPiecePointList.OrderBy(i => Guid.NewGuid()).ToList();
 
         int Count = 0;
-
         var IndexList = Enumerable.Range(0, PieceList.Count - 1);
         IndexList = IndexList.OrderBy(i => Guid.NewGuid()).ToArray();
         foreach (int[] PossibleSetPiecePoint in PossibleSetPiecePointList)
@@ -230,41 +202,22 @@ public static class NPC
                 {
                     for(int RotateCount = 0; RotateCount < 4; RotateCount++)
                     {
-                        if (CurrentPiece.EffectiveList[ReverseCount, RotateCount] == 0)
+                        if (Count++ > 1000)
                         {
-                            CurrentPiece.Rotate(1);
-                            continue;
+                            UnityEngine.Debug.Log(Count);
+                            return PossibleSetPieceList;
                         }
-                        foreach(int[] PiecePoint in CurrentPiece.Design)
-                        {
-                            if (Count++ > 3000)
-                            {
-                                UnityEngine.Debug.Log(Count);
-                                return PossibleSetPieceList;
-                            }
-                            PieceInfo TmpCurrentPiece = new PieceInfo(CurrentPiece);
-
-                            //TmpCurrentPiece.DebugLogPieceList();
-
-                            TmpCurrentPiece.MovePivot(TmpCurrentPiece.Design, new int[]{-PiecePoint[0], -PiecePoint[1]});
-
-                            //UnityEngine.Debug.Log(-PiecePoint[0] + ", " + -PiecePoint[1]);
-                            //TmpCurrentPiece.DebugLogPieceList();
-
-                            if (BoardInfo.IsPossibleSetPiece(TmpCurrentPiece.Design, PossibleSetPiecePoint, PlayerNum))
-                            {
-
-                                    PossibleSetPieceList.Add( new object[]
-                                    {
-                                        Index,
-                                        ReverseCount,
-                                        RotateCount,
-                                        PossibleSetPiecePoint[0] - PiecePoint[0],
-                                        PossibleSetPiecePoint[1] - PiecePoint[1],
-                                        PieceDesign.CopyPieceDesign(CurrentPiece.Design),
-                                    });
-                            }
-                        }
+                        RandomInstruct_IsPossibleSetPiece
+                        (
+                            PossibleSetPieceList,
+                            PossibleSetPiecePoint,
+                            CurrentPiece,
+                            Index,
+                            BoardInfo,
+                            ReverseCount,
+                            RotateCount,
+                            PlayerNum
+                        );
                         CurrentPiece.Rotate(1);
                     }
                     CurrentPiece.Reverse();
@@ -276,6 +229,49 @@ public static class NPC
         return PossibleSetPieceList;
     }
 
+    static void RandomInstruct_IsPossibleSetPiece(List<object[]> PossibleSetPieceList, int[] PossibleSetPiecePoint, PieceInfo CurrentPiece, int Index, Board BoardInfo, int ReverseCount, int RotateCount, int PlayerNum)
+    {
+        if (CurrentPiece.EffectiveList[ReverseCount, RotateCount] == 0)
+        {
+            return;
+        }
+        foreach(int[] PiecePoint in CurrentPiece.Design)
+        {
+            PieceInfo TmpCurrentPiece = new PieceInfo(CurrentPiece);
+
+            TmpCurrentPiece.MovePivot(TmpCurrentPiece.Design, new int[]{-PiecePoint[0], -PiecePoint[1]});
+
+            if (BoardInfo.IsPossibleSetPiece(TmpCurrentPiece.Design, PossibleSetPiecePoint, PlayerNum))
+            {
+                    PossibleSetPieceList.Add( new object[]
+                    {
+                        Index,
+                        ReverseCount,
+                        RotateCount,
+                        PossibleSetPiecePoint[0] - PiecePoint[0],
+                        PossibleSetPiecePoint[1] - PiecePoint[1],
+                        PieceDesign.CopyPieceDesign(CurrentPiece.Design),
+                    });
+            }
+        }
+    }
+
+    static List<int[]> GetPossibleSetPiecePointList(Board BoardInfo, int PlayerNum)
+    {
+        List<int[]> PossibleSetPiecePointList = new List<int[]>();;
+
+        for (int IndexY = 0; IndexY < ConstList.BoardSize; IndexY++)
+        {
+            for (int IndexX = 0; IndexX < ConstList.BoardSize; IndexX++)
+            {
+                bool IsSpace = BoardInfo.IsPossibleSetPiece(new List<int[]>{new int[]{0, 0}}, new int[]{IndexY, IndexX}, PlayerNum);
+                if (IsSpace)
+                    PossibleSetPiecePointList.Add(new int[]{IndexY, IndexX});
+            }
+        }
+        return PossibleSetPiecePointList;
+    }
+
     static List<object[]> GetAllInstructions(List<PieceInfo> PieceList, Board BoardInfo, int Turn, int PlayerNum)
     {
         List<object[]> PossibleSetPieceList = new List<object[]>();
@@ -284,7 +280,7 @@ public static class NPC
 
         foreach (PieceInfo Piece in PieceList)
         {
-            List<int[]> CurrentPieceDesign = Piece.CopyPieceDesign();
+            PieceInfo CurrentPiece = new PieceInfo(Piece);
             
             PieceIndex++;
             if (SkipPieceCount(Piece.PieceCount, Turn, PossibleSetPieceListCount))
@@ -293,37 +289,47 @@ public static class NPC
             {
                 for (int RotateCount = 0; RotateCount < 4; RotateCount++)
                 {
-                    if (Piece.EffectiveList[ReverseCount, RotateCount] == 0)
-                    {
-                        PieceDesign.Rotate(CurrentPieceDesign, 1);
-                        continue;
-                    }
-                    for (int IndexY = 0; IndexY < ConstList.BoardSize; IndexY++)
-                    {
-                        for (int IndexX = 0; IndexX < ConstList.BoardSize; IndexX++)
-                        {
-                            bool IsSpace = BoardInfo.IsPossibleSetPiece(CurrentPieceDesign, new int[]{IndexY, IndexX}, PlayerNum);
-                            if (IsSpace)
-                            {
-                                PossibleSetPieceListCount++;
-                                PossibleSetPieceList.Add( new object[]
-                                {
-                                    PieceIndex,
-                                    ReverseCount,
-                                    RotateCount,
-                                    IndexY,
-                                    IndexX,
-                                    PieceDesign.CopyPieceDesign(CurrentPieceDesign),
-                                });
-                            }
-                        }
-                    }
-                    PieceDesign.Rotate(CurrentPieceDesign, 1);
+                    GetAllInstructions_IsPossibleSetPiece
+                    (
+                        PossibleSetPieceList,
+                        CurrentPiece,
+                        BoardInfo,
+                        PieceIndex,
+                        ReverseCount,
+                        RotateCount,
+                        PlayerNum
+                    );
+                    CurrentPiece.Rotate(1);
                 }
-                PieceDesign.Reverse(CurrentPieceDesign);
+                CurrentPiece.Reverse();
             }
         }
         return PossibleSetPieceList;
+    }
+
+    static void GetAllInstructions_IsPossibleSetPiece(List<object[]> PossibleSetPieceList, PieceInfo CurrentPiece, Board BoardInfo, int PieceIndex, int ReverseCount, int RotateCount, int PlayerNum)
+    {
+        if (CurrentPiece.EffectiveList[ReverseCount, RotateCount] == 0)
+            return;
+        for (int IndexY = 0; IndexY < ConstList.BoardSize; IndexY++)
+        {
+            for (int IndexX = 0; IndexX < ConstList.BoardSize; IndexX++)
+            {
+                bool IsSpace = BoardInfo.IsPossibleSetPiece(CurrentPiece.Design, new int[]{IndexY, IndexX}, PlayerNum);
+                if (IsSpace)
+                {
+                    PossibleSetPieceList.Add( new object[]
+                    {
+                        PieceIndex,
+                        ReverseCount,
+                        RotateCount,
+                        IndexY,
+                        IndexX,
+                        PieceDesign.CopyPieceDesign(CurrentPiece.Design),
+                    });
+                }
+            }
+        }
     }
 
     static bool SkipPieceCount(int PieceCount, int Turn, int ListCount)
@@ -377,11 +383,8 @@ public static class NPC
             Score = EvaluateBoardInfo(BoardInfo.BoardInfo, PlayerNum);
             Scores.Add(Score);
         }
-
         List<int> MaxScores = GetMaxScore(Scores);
-        UnityEngine.Debug.Log("Max: " + Scores.Max() + ", Count: " + MaxScores.Count + ", InstruntionsCount: " + Instruntions.Count);
-
-        int Index = MaxScores[UnityEngine.Random.Range(0, MaxScores.Count)];
+        int Index = MaxScores[UnityEngine.Random.Range(0, MaxScores.Count - 1)];
         return Instruntions[Index];
     }
 
@@ -434,37 +437,5 @@ public static class NPC
                 break;
         }
         return IndexY + IndexX - System.Math.Abs(IndexY- IndexX);
-    }
-
-    public static void SetPiece(List<int[]> PieceDesign, int PlayerNum, int[,] BoardInfo)
-    {
-        foreach (int[] Point in PieceDesign)
-        {
-            BoardInfo[Point[0], Point[1]] = PlayerNum + 1;
-        }
-    }
-
-
-    public static int[,] CopyBoardInfo(int[,] BoardInfo)
-    {
-        int[,] ResBoardInfo = new int[ConstList.BoardSize,ConstList.BoardSize];
-        
-        for (int IndexY = 0; IndexY < ConstList.BoardSize; IndexY++)
-        {
-            for (int IndexX = 0; IndexX < ConstList.BoardSize; IndexX++)
-            {
-                ResBoardInfo[IndexY, IndexX] = BoardInfo[IndexY, IndexX];
-            }
-        }
-        return ResBoardInfo;
-    }
-
-    public static void DebugLogPieceList(List<int[]> Design)
-    {
-        UnityEngine.Debug.Log("====");
-        foreach (int[] A in Design)
-        {
-            UnityEngine.Debug.Log(A[0] + " " + A[1]);
-        }
     }
 }

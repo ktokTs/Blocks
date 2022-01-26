@@ -4,6 +4,7 @@ using UnityEngine;
 
 public static class PieceDesign
 {
+    //基点としているピースの名前はPieceとなるようにしている。それ以外は(Clone)がついている
     public static List<int[]> ReturnDesign(GameObject ParentObj)
     {
         Vector3 Pivot = Vector3.zero;
@@ -28,6 +29,7 @@ public static class PieceDesign
         return res;
     }
 
+    // ピースの反転
     public static List<int[]> Reverse(List<int[]> Design)
     {
         foreach (int[] Piece in Design)
@@ -37,6 +39,7 @@ public static class PieceDesign
         return Design;
     }
 
+    // ピースの回転。Dirで回転方向を決める
     public static List<int[]> Rotate(List<int[]> Design, int Dir)
     {
         foreach (int[] Piece in Design)
@@ -48,6 +51,7 @@ public static class PieceDesign
         return Design;
     }
 
+    // ピースの形のDeepCopyを作成
     public static List<int[]> CopyPieceDesign(List<int[]> Design)
     {
         List<int[]> Res = new List<int[]>();

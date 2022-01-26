@@ -7,15 +7,11 @@ public class Piece : MonoBehaviour
     public Vector3 WaitPoint{get; set;} //ピースの待機場所
     int RotateAngle;
     int ReverseAngle;
-    public bool IsSet; //置かれた後のピースか判断 あまり必要ないかも
-    public PieceInfo PieceInfo;
+    public bool IsSet{get; set;} //置かれた後のピースか判断 あまり必要ないかも
+    public PieceInfo PieceInfo{get; set;}
     void Start()
     {
         PieceInfo = new PieceInfo(PieceDesign.ReturnDesign(this.gameObject));
-    }
-
-    void Update()
-    {
     }
 
     //ボードで設定されているピース待機場所に戻る

@@ -4,17 +4,26 @@ using UnityEngine;
 
 public class PieceInfo
 {
-    public List<int[]> StartDesign;
+    // 待機場所設定
+    public List<int[]> StartDesign{get; set;}
     public List<int[]> Design{get; set;}
-    public int PieceCount;
-    public int[,] EffectiveList = new int[2, 4]{{1, 0, 0, 0}, {0, 0, 0, 0}};
+    public int PieceCount{get; set;}
+
+    // 反転・回転において形状が代わり、再計算が必要かを示す
+    // [反転数,回転数]で定義。1の場合は再計算が必要
+    int[,] effectiveList = new int[2, 4]{{1, 0, 0, 0}, {0, 0, 0, 0}};
+    public int[,] EffectiveList
+    {
+        get {return effectiveList;}
+        private set {effectiveList = value;}
+    }
 
     public PieceInfo(List<int[]> Design)
     {
         this.Design = Design;
         StartDesign = CopyPieceDesign();
         PieceCount = Design.Count;
-        SetEffectiveReverse();
+        SetEffectiveList();
     }
 
     public PieceInfo(PieceInfo PieceInfo)
@@ -25,7 +34,10 @@ public class PieceInfo
         this.EffectiveList = PieceInfo.EffectiveList;
     }
 
-    void SetEffectiveReverse()
+    // 反転・回転で再計算が必要かを確認する
+    // 回転後の状態を見ることを考えると、回転前のピースの各位置に基点を移動させ、回転前の
+    // リストの位置が完全に一致するかを見ている
+    void SetEffectiveList()
     {
         List<List<int[]>> EffectivePieceDesignList = new List<List<int[]>>();
 
@@ -71,6 +83,7 @@ public class PieceInfo
         return IsEffective;
     }
 
+    // ピースの基点を変更する
     public void MovePivot(List<int[]> Design, int[] Pivot)
     {
         foreach (int[] Point in Design)

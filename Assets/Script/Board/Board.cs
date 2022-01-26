@@ -10,6 +10,7 @@ public class Board
     const int PlayerNum = 2;
     const int AllPiece = 89;
 
+    //シミュレーション中はSetPlayerは必要なし
     public Board(Board Src)
     {
         BoardInfo = Src.CopyBoardInfo();
@@ -20,10 +21,6 @@ public class Board
     {
         BoardInfo = new int[ConstList.BoardSize,ConstList.BoardSize];
         SetPlayer = new List<int>();
-    }
-
-    void Update()
-    {
     }
 
     //ピースを置けない場合はfalseを返し、置ける場合はtrueを返す。
@@ -188,7 +185,6 @@ public class Board
         int Index = 0;
         foreach (int PlayerScore in PlayerScores)
         {
-            //Debug.Log(Index + ": " + (AllPiece - PlayerScore));
             if (MaxScore == PlayerScore)
                 Winner.Add(Index);
             Index++;
